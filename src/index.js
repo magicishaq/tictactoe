@@ -1,6 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import './index.css'
+import calculateWinner from './calculateWinner'
 
 //function components dont contain states
 function Square ({value, onClick}) {
@@ -15,16 +16,23 @@ function Square ({value, onClick}) {
   class Board extends React.Component {
       constructor(props){
           super(props); 
-          this.state ={
-              squares: Array(9).fill(null)
+          this.state = {
+              squares: Array(9).fill(null), 
+              isXNext: true
           }
       }
     
       handleClick(i) {
-        const squares = this.state.squares.slice(); //creates a copy of the array
-        squares[i] = 'X' //sets postion of square as X
-        this.setState({squares: squares}) //sets the new state
+        const squares = this.state.squares.slice(); 
+        //creates a copy of the array
 
+        if(calculateWinner(squares) || squares[i]){
+            return; 
+            //stops the click event by leaving the function
+        }
+        squares[i] = this.state.isXNext ? 'X' : '0' //sets postion of square as X
+        this.setState({squares: squares,
+        isXNext: !this.state.isXNext}) //sets the new state
     }
 
 
@@ -36,8 +44,14 @@ function Square ({value, onClick}) {
     }
   
     render() {
-      const status = 'Next player: X';
-  
+        const winner = calculateWinner(this.state.squares);
+        let status;
+        if (winner) {
+          status = 'Winner: ' + winner;
+        } else {
+          status = 'Next player: ' + (this.state.isXNext ? 'X' : '0') 
+        }
+    
       return (
         <div>
           <div className="status">{status}</div>
@@ -76,6 +90,7 @@ function Square ({value, onClick}) {
       );
     }
   }
+
   
   // ========================================
   
@@ -83,4 +98,12 @@ function Square ({value, onClick}) {
     <Game />,
     document.getElementById('root')
   );
+  
+
+  /**
+   * Helper functions
+   */
+
+   
+
   
